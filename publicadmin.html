@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Logs</title>
+</head>
+
+<body>
+
+    <h2>Search Logs</h2>
+
+    <div id="logs"></div>
+
+    <script>
+
+        async function load(){
+
+            const res=await fetch("/logs");
+
+            const data=await res.json();
+
+            let html="";
+
+            data.forEach(item=>{
+
+                html+=`
+                    <p>
+                        ${item.query}
+                        <br>
+                        ${item.time}
+                    </p>
+                    <hr>
+                `;
+
+            });
+
+            document.getElementById("logs").innerHTML=html;
+
+        }
+
+        load();
+
+    </script>
+
+</body>
+
+</html>

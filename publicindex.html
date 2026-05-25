@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Search</title>
+</head>
+
+<body>
+
+    <h1>Search</h1>
+
+    <input id="search" placeholder="Search anything">
+
+    <button onclick="go()">Search</button>
+
+    <script>
+
+        async function go(){
+
+            const query=document.getElementById("search").value;
+
+            const res=await fetch("/search",{
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                body:JSON.stringify({query})
+            });
+
+            const data=await res.json();
+
+            window.location=data.redirect;
+
+        }
+
+    </script>
+
+</body>
+
+</html>
