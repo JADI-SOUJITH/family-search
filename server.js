@@ -8,7 +8,10 @@ app.use(express.static("public"));
 
 app.post("/search",(req,res)=>{
 
-    const query=req.body.query;
+    const box1=req.body.box1;
+    const box2=req.body.box2;
+
+    const query=box1||box2;
 
     let data=[];
 
@@ -17,7 +20,8 @@ app.post("/search",(req,res)=>{
     }
 
     data.push({
-        query,
+        searchBox1:box1,
+        searchBox2:box2,
         time:new Date().toLocaleString("en-IN",{
             timeZone:"Asia/Kolkata"
         })
