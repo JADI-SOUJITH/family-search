@@ -18,7 +18,9 @@ app.post("/search",(req,res)=>{
 
     data.push({
         query,
-        time:new Date()
+        time:new Date().toLocaleString("en-IN",{
+            timeZone:"Asia/Kolkata"
+        })
     });
 
     fs.writeFileSync("searches.json",JSON.stringify(data,null,2));
