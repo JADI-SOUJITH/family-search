@@ -1,51 +1,34 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <title>Logs</title>
 </head>
-
 <body>
-
-    <h2>Search Logs</h2>
-
+    <h1>Search Logs</h1>
     <div id="logs"></div>
 
     <script>
+        async function loadLogs() {
+            const res = await fetch("/logs");
+            const data = await res.json();
 
-        async function load(){
+            let html = "";
 
-            const res=await fetch("/logs");
-
-            const data=await res.json();
-
-            let html="";
-
-            data.forEach(item=>{
-
-                html+=`
-                    <p>
-                        Search Box 1: ${item.searchBox1}
-                        <br><br>
-
-                        Search Box 2: ${item.searchBox2}
-                        <br><br>
-
-                        Time: ${item.time}
-                    </p>
-                    <hr>
+            data.forEach(item => {
+                html += `
+                    <div style="margin-bottom:20px;">
+                        <div>Search Box 1: ${item.searchBox1 === null ? "null" : item.searchBox1}</div>
+                        <div>Search Box 2: ${item.searchBox2 === null ? "null" : item.searchBox2}</div>
+                        <div>Time: ${item.time}</div>
+                        <hr>
+                    </div>
                 `;
-
             });
 
-            document.getElementById("logs").innerHTML=html;
-
+            document.getElementById("logs").innerHTML = html || "<p>No logs yet.</p>";
         }
 
-        load();
-
+        loadLogs();
     </script>
-
 </body>
-
 </html>
