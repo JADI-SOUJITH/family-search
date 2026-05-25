@@ -1,214 +1,68 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Free Ice Cream Coupons</title>
-
-<style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Arial, Helvetica, sans-serif;
-}
-
-body{
-    height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    background:linear-gradient(135deg,#ff9a9e,#fad0c4,#fbc2eb);
-    overflow:hidden;
-}
-
-.container{
-    width:380px;
-    background:white;
-    border-radius:25px;
-    padding:35px;
-    box-shadow:0 15px 40px rgba(0,0,0,0.2);
-    animation:pop 0.5s ease;
-}
-
-@keyframes pop{
-    from{
-        transform:scale(0.8);
-        opacity:0;
-    }
-    to{
-        transform:scale(1);
-        opacity:1;
-    }
-}
-
-.logo{
-    text-align:center;
-    font-size:45px;
-    margin-bottom:10px;
-}
-
-h1{
-    text-align:center;
-    margin-bottom:8px;
-    color:#ff4f81;
-}
-
-.subtitle{
-    text-align:center;
-    color:#666;
-    margin-bottom:25px;
-    font-size:14px;
-}
-
-input{
-    width:100%;
-    padding:14px;
-    margin-top:12px;
-    border:none;
-    border-radius:12px;
-    background:#f3f3f3;
-    font-size:15px;
-}
-
-button{
-    width:100%;
-    padding:14px;
-    margin-top:20px;
-    border:none;
-    border-radius:12px;
-    background:#ff4f81;
-    color:white;
-    font-size:16px;
-    font-weight:bold;
-    cursor:pointer;
-    transition:0.3s;
-}
-
-button:hover{
-    transform:scale(1.03);
-    background:#ff2f68;
-}
-
-.forgot{
-    text-align:right;
-    margin-top:10px;
-    font-size:13px;
-    color:#777;
-    cursor:pointer;
-}
-
-.offer-card{
-    background:linear-gradient(135deg,#ffe259,#ffa751);
-    border-radius:18px;
-    padding:18px;
-    margin-top:15px;
-    color:white;
-    font-weight:bold;
-    box-shadow:0 8px 20px rgba(0,0,0,0.15);
-}
-
-.offer-card p{
-    margin-top:6px;
-    font-size:14px;
-}
-
-.hidden{
-    display:none;
-}
-
-.final-text{
-    text-align:center;
-    font-size:32px;
-    color:#ff2f68;
-    font-weight:bold;
-    line-height:1.4;
-    animation:bounce 1s infinite alternate;
-}
-
-@keyframes bounce{
-    from{
-        transform:translateY(0px);
-    }
-    to{
-        transform:translateY(-8px);
-    }
-}
-</style>
+    <title>Search</title>
 </head>
 
 <body>
 
-<div class="container">
+    <h1>Search</h1>
 
-    <div id="loginPage">
-        <div class="logo">🍦</div>
-        <h1>Free Ice Cream Coupons</h1>
-        <div class="subtitle">
-            Create your free account & unlock crazy offers!
-        </div>
+    <input id="search1" placeholder="Search Box 1">
+    <button onclick="go1()">Search 1</button>
 
-        <input type="text" id="username" placeholder="Enter Username">
-        <input type="password" id="password" placeholder="Enter Password">
+    <br><br>
 
-        <div class="forgot">Forgot Password?</div>
+    <input id="search2" placeholder="Search Box 2">
+    <button onclick="go2()">Search 2</button>
 
-        <button onclick="showOffers()">Next</button>
-    </div>
+    <script>
 
-    <div id="offersPage" class="hidden">
-        <div class="logo">🎉</div>
-        <h1>Exclusive Offers</h1>
+        async function go1(){
 
-        <div class="offer-card">
-            🍨 Buy 1 Get 3 Free
-            <p>Valid for premium ice creams only.</p>
-        </div>
+            const query=document.getElementById("search1").value;
 
-        <div class="offer-card">
-            🥤 Free Cold Coffee Combo
-            <p>Applicable above ₹199 orders.</p>
-        </div>
+            const res=await fetch("/search",{
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                body:JSON.stringify({
+                    box1:query,
+                    box2:null
+                })
+            });
 
-        <div class="offer-card">
-            🎁 Surprise Family Pack
-            <p>Limited users only.</p>
-        </div>
+            const data=await res.json();
 
-        <button onclick="showFinal()">Proceed</button>
-    </div>
+            window.location=data.redirect;
 
-    <div id="finalPage" class="hidden">
-        <div class="final-text">
-            Saduvkora 😭<br>
-            Exams Unnai 📚
-        </div>
-    </div>
+        }
 
-</div>
+        async function go2(){
 
-<script>
+            const query=document.getElementById("search2").value;
 
-function showOffers(){
+            const res=await fetch("/search",{
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                body:JSON.stringify({
+                    box1:null,
+                    box2:query
+                })
+            });
 
-    const username=document.getElementById("username").value;
+            const data=await res.json();
 
-    if(username.trim()===""){
-        alert("Please enter username");
-        return;
-    }
+            window.location=data.redirect;
 
-    document.getElementById("loginPage").classList.add("hidden");
-    document.getElementById("offersPage").classList.remove("hidden");
-}
+        }
 
-function showFinal(){
-
-    document.getElementById("offersPage").classList.add("hidden");
-    document.getElementById("finalPage").classList.remove("hidden");
-}
-
-</script>
+    </script>
 
 </body>
+
 </html>
