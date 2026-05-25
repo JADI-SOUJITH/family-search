@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Admin Logs</title>
+
+    <style>
+
+        body{
+            background:#020617;
+            color:white;
+            font-family:Arial;
+            padding:40px;
+        }
+
+        h1{
+            margin-bottom:30px;
+        }
+
+        .card{
+            background:#111827;
+            padding:20px;
+            border-radius:16px;
+            margin-bottom:20px;
+            border:1px solid rgba(255,255,255,0.06);
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <h1>Search Logs</h1>
+
+    <div id="logs"></div>
+
+    <script>
+
+        async function loadLogs(){
+
+            const res=await fetch("http://localhost:3000/logs");
+
+            const data=await res.json();
+
+            let html="";
+
+            data.forEach(item=>{
+
+                html+=`
+                    <div class="card">
+
+                        <p>
+                            <strong>Search Box 1:</strong>
+                            ${item.searchBox1}
+                        </p>
+
+                        <br>
+
+                        <p>
+                            <strong>Search Box 2:</strong>
+                            ${item.searchBox2}
+                        </p>
+
+                        <br>
+
+                        <p>
+                            <strong>Time:</strong>
+                            ${item.time}
+                        </p>
+
+                    </div>
+                `;
+
+            });
+
+            document.getElementById("logs").innerHTML=html;
+
+        }
+
+        loadLogs();
+
+    </script>
+
+</body>
+
+</html>
