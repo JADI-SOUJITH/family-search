@@ -1,88 +1,81 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Logs</title>
-
     <style>
-
         body{
+            margin:0;
+            padding:40px;
             background:#020617;
             color:white;
-            font-family:Arial;
-            padding:40px;
+            font-family:Arial,sans-serif;
         }
-
         h1{
-            margin-bottom:30px;
+            margin:0 0 24px;
+            font-size:40px;
         }
-
+        .status{
+            color:#94a3b8;
+            margin-bottom:20px;
+        }
         .card{
             background:#111827;
             padding:20px;
             border-radius:16px;
-            margin-bottom:20px;
+            margin-bottom:16px;
             border:1px solid rgba(255,255,255,0.06);
         }
-
+        .error{
+            color:#fca5a5;
+            margin-top:12px;
+        }
     </style>
-
 </head>
-
 <body>
-
     <h1>Search Logs</h1>
-
+    <div class="status" id="status">Loading...</div>
     <div id="logs"></div>
 
     <script>
+        const API_URL = "https://family-search-g6t8.onrender.com";
 
         async function loadLogs(){
+            const statusEl = document.getElementById("status");
+            const logsEl = document.getElementById("logs");
 
-            const res=await fetch("http://localhost:3000/logs");
+            try{
+                const res = await fetch(`${API_URL}/logs`);
 
-            const data=await res.json();
+                if(!res.ok){
+                    throw new Error(`HTTP ${res.status}`);
+                }
 
-            let html="";
+                const data = await res.json();
 
-            data.forEach(item=>{
+                if(!Array.isArray(data) || data.length === 0){
+                    statusEl.textContent = "No logs yet.";
+                    logsEl.innerHTML = "";
+                    return;
+                }
 
-                html+=`
+                statusEl.textContent = `${data.length} log(s) found`;
+
+                logsEl.innerHTML = data.map(item => `
                     <div class="card">
-
-                        <p>
-                            <strong>Search Box 1:</strong>
-                            ${item.searchBox1}
-                        </p>
-
-                        <br>
-
-                        <p>
-                            <strong>Search Box 2:</strong>
-                            ${item.searchBox2}
-                        </p>
-
-                        <br>
-
-                        <p>
-                            <strong>Time:</strong>
-                            ${item.time}
-                        </p>
-
+                        <div><strong>Search Box 1:</strong> ${item.searchBox1 ?? "null"}</div>
+                        <div style="margin-top:10px;"><strong>Search Box 2:</strong> ${item.searchBox2 ?? "null"}</div>
+                        <div style="margin-top:10px;"><strong>Time:</strong> ${item.time ?? "unknown"}</div>
                     </div>
-                `;
-
-            });
-
-            document.getElementById("logs").innerHTML=html;
-
+                `).join("");
+            }catch(err){
+                statusEl.textContent = "Failed to load logs.";
+                logsEl.innerHTML = `<div class="error">${err.message}</div>`;
+            }
         }
 
         loadLogs();
-
     </script>
-
 </body>
-
 </html>
