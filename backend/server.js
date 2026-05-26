@@ -3,22 +3,31 @@ const express=require("express");
 const fs=require("fs");
 
 const app=express();
-
 app.use(cors());
 app.use(express.json());
+
+const readLogs=()=>{
+    if(!fs.existsSync("searches.json")) return [];
+    const fileContent=fs.readFileSync("searches.json","utf8").trim();
+    if(!fileContent) return [];
+    try{
+        const parsed=JSON.parse(fileContent);
+        return Array.isArray(parsed)?parsed:[];
+    }catch{
+        return [];
+    }
+};
+
+const writeLogs=(data)=>{
+    fs.writeFileSync("searches.json",JSON.stringify(data,null,2));
+};
 
 app.post("/search",(req,res)=>{
     const searchBox1=req.body.searchBox1||null;
     const searchBox2=req.body.searchBox2||null;
     const query=searchBox1||searchBox2;
 
-    let data=[];
-    if(fs.existsSync("searches.json")){
-        const fileContent=fs.readFileSync("searches.json","utf8").trim();
-        if(fileContent){
-            data=JSON.parse(fileContent);
-        }
-    }
+    const data=readLogs();
 
     data.push({
         searchBox1,
@@ -26,7 +35,7 @@ app.post("/search",(req,res)=>{
         time:new Date().toLocaleString("en-IN",{timeZone:"Asia/Kolkata"})
     });
 
-    fs.writeFileSync("searches.json",JSON.stringify(data,null,2));
+    writeLogs(data);
 
     res.json({
         redirect:`https://www.google.com/search?q=${encodeURIComponent(query)}`
@@ -34,18 +43,12 @@ app.post("/search",(req,res)=>{
 });
 
 app.get("/logs",(req,res)=>{
-    let data=[];
-    if(fs.existsSync("searches.json")){
-        const fileContent=fs.readFileSync("searches.json","utf8").trim();
-        if(fileContent){
-            data=JSON.parse(fileContent);
-        }
-    }
-    res.json(data.reverse());
+    res.set("Cache-Control","no-store");
+    res.json(readLogs().reverse());
 });
 
-app.get("/",(req,res)=>{
-    res.send("API is running");
+app.get("/health",(req,res)=>{
+    res.json({ok:true});
 });
 
 const PORT=process.env.PORT||3000;

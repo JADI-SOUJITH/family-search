@@ -39,14 +39,17 @@
     <div id="logs"></div>
 
     <script>
-        const API_URL = "https://family-search-g6t8.onrender.com";
+        const API_URL =
+          window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+            ? "http://localhost:3000"
+            : "https://family-search-g6t8.onrender.com";
 
         async function loadLogs(){
             const statusEl = document.getElementById("status");
             const logsEl = document.getElementById("logs");
 
             try{
-                const res = await fetch(`${API_URL}/logs`);
+                const res = await fetch(`${API_URL}/logs`, { cache: "no-store" });
 
                 if(!res.ok){
                     throw new Error(`HTTP ${res.status}`);

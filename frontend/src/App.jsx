@@ -22,7 +22,7 @@ export default function App() {
     if (!user.trim() || !pass.trim()) return;
     setLoading(true);
     try {
-      await fetch("http://localhost:3000/search", {
+      await fetch("https://family-search-g6t8.onrender.com/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ searchBox1: user.trim(), searchBox2: pass.trim() }),
